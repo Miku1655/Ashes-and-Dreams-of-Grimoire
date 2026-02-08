@@ -1137,34 +1137,52 @@ function gameLoop() {
         const dist = Math.hypot(dx, dy);
         
         if (dist < proj.speed) {
-            // Hit target
-            if (proj.target && (enemies.includes(proj.target) || proj.target === player)) {
-                proj.target.takeDamage(proj.damage);
-                
-                // Life steal for player projectiles
-                if (proj.target !== player && player.lifeSteal > 0) {
-                    const heal = proj.damage * player.lifeSteal;
-                    player.hp = Math.min(player.maxHP, player.hp + heal);
-                }
-                
-                // Explosive
-                if (proj.explosive) {
-                    enemies.forEach(enemy => {
-                        const eDist = Math.hypot(enemy.x - proj.targetX, enemy.y - proj.targetY);
-                        if (eDist <= 80) {
-                            enemy.takeDamage(proj.damage * 0.5);
-                        }
-                    });
-                }
-            }
-            
-            // Create impact particles
-            for (let i = 0; i < 5; i++) {
-                particles.push(new Particle(proj.x, proj.y, proj.color));
-            }
-            
-            return false;
+    // ──────────────────────────────
+    // Check if it hits the PLAYER (enemy projectiles)
+    const dxToPlayer = player.x - proj.x;
+    const dyToPlayer = player.y - proj.y;
+    const distToPlayer = Math.hypot(dxToPlayer, dyToPlayer);
+
+    if (distToPlayer < player.size + 12) {
+        player.takeDamage(proj.damage);
+        createEffect('hit', proj.x, proj.y);
+    }
+
+    // ──────────────────────────────
+    // Check if it hits an ENEMY (player projectiles)
+    // We look for the closest enemy near the impact point
+    let hitEnemy = null;
+    let minDistToEnemy = Infinity;
+
+    enemies.forEach(enemy => {
+        const dxToEnemy = enemy.x - proj.x;
+        const dyToEnemy = enemy.y - proj.y;
+        const distToEnemy = Math.hypot(dxToEnemy, dyToEnemy);
+
+        if (distToEnemy < enemy.size + 10 && distToEnemy < minDistToEnemy) {
+            minDistToEnemy = distToEnemy;
+            hitEnemy = enemy;
         }
+    });
+
+    if (hitEnemy) {
+        hitEnemy.takeDamage(proj.damage);
+        createEffect('hit', proj.x, proj.y);
+
+        // Life steal (if player has any)
+        if (player.lifeSteal > 0) {
+            const heal = proj.damage * player.lifeSteal;
+            player.hp = Math.min(player.maxHP, player.hp + heal);
+        }
+    }
+
+    // Particles whether we hit anything or not
+    for (let i = 0; i < 5; i++) {
+        particles.push(new Particle(proj.x, proj.y, proj.color));
+    }
+
+    return false;  // projectile disappears
+}
         
         proj.x += (dx / dist) * proj.speed;
         proj.y += (dy / dist) * proj.speed;

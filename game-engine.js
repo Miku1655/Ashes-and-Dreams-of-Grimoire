@@ -311,6 +311,9 @@ function startGame() {
     // Apply upgrades
     applyPermanentUpgrades(player);
     applyConsumables(player);
+
+    // Give starting XP to trigger first level-up
+    player.gainXP(100);
     
     // Position camera
     camera.x = player.x - canvas.width / 2;

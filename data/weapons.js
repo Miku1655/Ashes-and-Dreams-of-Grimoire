@@ -458,3 +458,231 @@ const WEAPONS = {
 if (typeof window !== 'undefined') {
     window.WEAPONS = WEAPONS;
 }
+
+    // ==================== GRIMGAR THEMED WEAPONS ====================
+    
+    thiefsDagger: {
+        name: "Thief's Dagger",
+        description: "Haruhiro's signature weapon. Fast strikes with backstab bonus.",
+        icon: "🗡️",
+        type: "melee",
+        rarity: "uncommon",
+        maxLevel: 8,
+        
+        baseDamage: 12,
+        baseRange: 90,
+        baseCooldown: 500,
+        baseProjectileCount: 1,
+        
+        damagePerLevel: 3,
+        rangePerLevel: 8,
+        cooldownReduction: 35,
+        
+        evolution: {
+            name: "Spider",
+            description: "Named blade of a master thief. Strikes like death itself.",
+            bonusDamage: 30,
+            critBonus: 0.25 // Extra 25% crit chance
+        },
+        
+        fire: (player, level) => {
+            const weaponData = WEAPONS.thiefsDagger;
+            const damage = weaponData.baseDamage + (level - 1) * weaponData.damagePerLevel;
+            const range = weaponData.baseRange + (level - 1) * weaponData.rangePerLevel;
+            const isEvolved = level >= weaponData.maxLevel;
+            
+            const finalDamage = damage + (isEvolved ? weaponData.evolution.bonusDamage : 0);
+            
+            // Quick stabs in cone
+            const stabCount = isEvolved ? 5 : 3;
+            const spreadAngle = Math.PI / 6;
+            
+            for (let i = 0; i < stabCount; i++) {
+                const angle = player.facingAngle + (i - stabCount/2) * spreadAngle / stabCount;
+                setTimeout(() => {
+                    enemies.forEach(enemy => {
+                        const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
+                        if (dist <= range) {
+                            const enemyAngle = Math.atan2(enemy.y - player.y, enemy.x - player.x);
+                            const angleDiff = Math.abs(enemyAngle - angle);
+                            if (angleDiff < Math.PI / 8) {
+                                let critBonus = isEvolved ? weaponData.evolution.critBonus : 0;
+                                let dmg = finalDamage * (1 + critBonus);
+                                enemy.takeDamage(dmg, player);
+                                createEffect('slash', enemy.x, enemy.y);
+                            }
+                        }
+                    });
+                }, i * 50);
+            }
+        }
+    },
+    
+    paladinGreatsword: {
+        name: "Paladin's Greatsword",
+        description: "Moguzo's heavy blade. Thanks and good-bye...",
+        icon: "🗡️",
+        type: "melee",
+        rarity: "rare",
+        maxLevel: 8,
+        
+        baseDamage: 25,
+        baseRange: 110,
+        baseCooldown: 1500,
+        baseProjectileCount: 1,
+        
+        damagePerLevel: 6,
+        rangePerLevel: 12,
+        cooldownReduction: 100,
+        
+        evolution: {
+            name: "Moguzo's Legacy",
+            description: "The blade of a hero. Those it protects shall never fall.",
+            bonusDamage: 40,
+            shieldAllies: true
+        },
+        
+        fire: (player, level) => {
+            const weaponData = WEAPONS.paladinGreatsword;
+            const damage = weaponData.baseDamage + (level - 1) * weaponData.damagePerLevel;
+            const range = weaponData.baseRange + (level - 1) * weaponData.rangePerLevel;
+            const isEvolved = level >= weaponData.maxLevel;
+            
+            const finalDamage = damage + (isEvolved ? weaponData.evolution.bonusDamage : 0);
+            
+            // Heavy cleave
+            enemies.forEach(enemy => {
+                const dist = Math.hypot(enemy.x - player.x, enemy.y - player.y);
+                if (dist <= range) {
+                    enemy.takeDamage(finalDamage, player);
+                    
+                    // Knockback
+                    const angle = Math.atan2(enemy.y - player.y, enemy.x - player.x);
+                    enemy.x += Math.cos(angle) * 30;
+                    enemy.y += Math.sin(angle) * 30;
+                    
+                    createEffect('slash', enemy.x, enemy.y);
+                }
+            });
+            
+            // Evolution: brief shield
+            if (isEvolved) {
+                player.shield = Math.min(player.maxShield || 50, (player.shield || 0) + 20);
+            }
+        }
+    },
+    
+    shadowStrike: {
+        name: "Shadow Strike",
+        description: "Dark knight technique. Dash through enemies dealing damage.",
+        icon: "💀",
+        type: "melee",
+        rarity: "uncommon",
+        maxLevel: 8,
+        
+        baseDamage: 15,
+        baseRange: 200,
+        baseCooldown: 2500,
+        baseProjectileCount: 1,
+        
+        damagePerLevel: 4,
+        rangePerLevel: 20,
+        cooldownReduction: 200,
+        
+        evolution: {
+            name: "Hatred",
+            description: "Pure malice given form. Consumes all in its path.",
+            bonusDamage: 35,
+            chains: 3
+        },
+        
+        fire: (player, level) => {
+            const weaponData = WEAPONS.shadowStrike;
+            const damage = weaponData.baseDamage + (level - 1) * weaponData.damagePerLevel;
+            const range = weaponData.baseRange + (level - 1) * weaponData.rangePerLevel;
+            const isEvolved = level >= weaponData.maxLevel;
+            
+            const finalDamage = damage + (isEvolved ? weaponData.evolution.bonusDamage : 0);
+            
+            // Dash forward
+            const dashDistance = range;
+            const startX = player.x;
+            const startY = player.y;
+            
+            player.x += Math.cos(player.facingAngle) * dashDistance;
+            player.y += Math.sin(player.facingAngle) * dashDistance;
+            
+            // Damage everything in path
+            enemies.forEach(enemy => {
+                // Check if enemy is in dash path
+                const distToPath = Math.abs(
+                    (player.y - startY) * enemy.x - 
+                    (player.x - startX) * enemy.y + 
+                    player.x * startY - 
+                    player.y * startX
+                ) / dashDistance;
+                
+                if (distToPath < 50) {
+                    enemy.takeDamage(finalDamage, player);
+                    createEffect('slash', enemy.x, enemy.y);
+                }
+            });
+            
+            createEffect('darkness', player.x, player.y);
+        }
+    },
+    
+    huntersBow: {
+        name: "Hunter's Bow",
+        description: "Precision ranged weapon. Never misses your mark.",
+        icon: "🏹",
+        type: "projectile",
+        rarity: "common",
+        maxLevel: 8,
+        
+        baseDamage: 10,
+        baseRange: 350,
+        baseCooldown: 900,
+        baseProjectileCount: 1,
+        
+        damagePerLevel: 3,
+        rangePerLevel: 25,
+        cooldownReduction: 70,
+        projectileCountPerLevel: 0.33,
+        
+        evolution: {
+            name: "Eagle Eye",
+            description: "Shots that never miss. Pierce through all foes.",
+            bonusDamage: 20,
+            pierce: 10
+        },
+        
+        fire: (player, level) => {
+            const weaponData = WEAPONS.huntersBow;
+            const damage = weaponData.baseDamage + (level - 1) * weaponData.damagePerLevel;
+            const range = weaponData.baseRange + (level - 1) * weaponData.rangePerLevel;
+            const count = Math.floor(weaponData.baseProjectileCount + (level - 1) * weaponData.projectileCountPerLevel);
+            const isEvolved = level >= weaponData.maxLevel;
+            
+            const finalDamage = damage + (isEvolved ? weaponData.evolution.bonusDamage : 0);
+            const pierce = isEvolved ? weaponData.evolution.pierce : 2;
+            
+            const targets = findNearestEnemies(player, enemies, count);
+            targets.forEach((target, index) => {
+                setTimeout(() => {
+                    const angle = Math.atan2(target.y - player.y, target.x - player.x);
+                    createProjectile(player.x, player.y, {
+                        damage: finalDamage,
+                        dx: Math.cos(angle),
+                        dy: Math.sin(angle),
+                        speed: 12,
+                        range: range,
+                        pierce: pierce,
+                        color: '#8b7355',
+                        effect: 'hit'
+                    });
+                }, index * 100);
+            });
+        }
+    }
+};

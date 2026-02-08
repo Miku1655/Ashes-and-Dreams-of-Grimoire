@@ -311,9 +311,6 @@ function startGame() {
     // Apply upgrades
     applyPermanentUpgrades(player);
     applyConsumables(player);
-
-    // give ex
-    gainXP(100);
     
     // Position camera
     camera.x = player.x - canvas.width / 2;

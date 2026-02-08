@@ -751,29 +751,35 @@ class Player {
     constructor(classData, mapData) {
         this.x = mapData.width / 2;
         this.y = mapData.height / 2;
-        
+       
         // Base stats
         this.maxHP = classData.baseHP;
         this.hp = this.maxHP;
         this.baseSpeed = classData.baseSpeed;
         this.speed = this.baseSpeed;
         this.armor = classData.baseArmor;
-        
+       
         this.level = 1;
         this.xp = 0;
         this.xpToNextLevel = 100;
-        
+       
         this.size = 15;
         this.color = classData.color;
         this.icon = classData.icon;
-        
+       
         this.facingAngle = 0;
         this.rotation = 0;
-        
+       
         // Weapons and items
         this.weapons = {};
         this.items = {};
-        
+       
+        // FIX: Equip starting weapon immediately (breaks the no-attack deadlock)
+        if (classData.starterWeapon) {
+            this.weapons[classData.starterWeapon] = 1;
+            console.log(`Equipped starting weapon: ${WEAPONS[classData.starterWeapon]?.name || 'Unknown'} (Level 1)`);
+        }
+       
         // Stat modifiers (recalculated from items)
         this.damageMultiplier = 1;
         this.flatDamageBonus = 0;

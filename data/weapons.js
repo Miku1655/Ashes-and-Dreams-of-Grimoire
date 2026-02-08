@@ -457,10 +457,10 @@ const WEAPONS = {
 // Make available globally
 if (typeof window !== 'undefined') {
     window.WEAPONS = WEAPONS;
-},
+}
 
     // ==================== GRIMGAR THEMED WEAPONS ====================
-    
+}    
     thiefsDagger: {
         name: "Thief's Dagger",
         description: "Haruhiro's signature weapon. Fast strikes with backstab bonus.",

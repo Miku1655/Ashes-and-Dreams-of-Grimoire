@@ -65,7 +65,8 @@ const CLASSES = {
         baseItemSlots: 7,
         
         weaponAffinity: ["area", "projectile"],
-        itemAffinity: ["cooldown", "area", "damage"]
+        itemAffinity: ["cooldown", "area", "damage"],
+        const weapon = WEAPONS[magicMissile];
     },
     
     priest: {

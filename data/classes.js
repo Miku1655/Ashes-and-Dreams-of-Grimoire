@@ -17,7 +17,6 @@ const CLASSES = {
         
         weaponAffinity: ["melee", "projectile"],
         itemAffinity: ["defense", "health", "damage"],
-        const weapon = WEAPONS[sword];
     },
     
     thief: {
@@ -66,7 +65,6 @@ const CLASSES = {
         
         weaponAffinity: ["area", "projectile"],
         itemAffinity: ["cooldown", "area", "damage"],
-        const weapon = WEAPONS[magicMissile];
     },
     
     priest: {

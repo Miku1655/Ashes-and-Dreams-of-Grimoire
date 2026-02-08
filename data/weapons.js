@@ -457,7 +457,7 @@ const WEAPONS = {
 // Make available globally
 if (typeof window !== 'undefined') {
     window.WEAPONS = WEAPONS;
-}
+},
 
     // ==================== GRIMGAR THEMED WEAPONS ====================
     

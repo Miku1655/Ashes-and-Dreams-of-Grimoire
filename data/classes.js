@@ -16,7 +16,8 @@ const CLASSES = {
         baseItemSlots: 6,
         
         weaponAffinity: ["melee", "projectile"],
-        itemAffinity: ["defense", "health", "damage"]
+        itemAffinity: ["defense", "health", "damage"],
+        const weapon = WEAPONS[sword];
     },
     
     thief: {

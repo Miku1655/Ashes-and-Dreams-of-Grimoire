@@ -106,8 +106,8 @@
                     </div>
                 </div>
 
-                <!-- Skills Bar -->
-                <div id="skills-bar"></div>
+                <!-- Items Display -->
+                <div id="items-display"></div>
 
                 <!-- Minimap -->
                 <div id="minimap">
@@ -122,6 +122,7 @@
                     <h2>Level Up!</h2>
                     <p class="level-subtitle">Choose your upgrade</p>
                     <div id="upgrade-options"></div>
+                    <div id="reroll-buttons"></div>
                 </div>
 
                 <!-- Pause Menu -->
@@ -155,9 +156,14 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Scripts - Load data files first, then systems -->
     <script src="save-system.js"></script>
-    <script src="game-data.js"></script>
+    <script src="data/classes.js"></script>
+    <script src="data/weapons.js"></script>
+    <script src="data/items.js"></script>
+    <script src="data/enemies.js"></script>
+    <script src="data/maps.js"></script>
+    <script src="data/shop.js"></script>
     <script src="game-engine.js"></script>
 </body>
 </html>

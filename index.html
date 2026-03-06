@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grimgar Chronicles</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- MAIN MENU -->
+<div id="main-menu" class="screen active">
+    <div class="menu-bg"></div>
+    <div class="menu-content">
+        <div class="game-title">
+            <div class="title-sub">HAI TO GENSOU NO</div>
+            <div class="title-main">GRIMGAR</div>
+            <div class="title-sub2">CHRONICLES</div>
+        </div>
+        <div class="menu-buttons">
+            <button class="btn-primary" onclick="startNewGame()">⚔ NEW GAME</button>
+            <button class="btn-secondary" id="continue-btn" onclick="continueGame()" style="display:none">▶ CONTINUE</button>
+            <button class="btn-secondary" onclick="openShop()">🏪 SHOP</button>
+        </div>
+        <div class="menu-gold">
+            <span class="gold-icon">💰</span>
+            <span id="menu-gold-amount">0</span> Gold
+        </div>
+    </div>
+</div>
+
+<!-- CLASS SELECT -->
+<div id="class-select" class="screen">
+    <div class="screen-header">
+        <button class="btn-back" onclick="showScreen('main-menu')">← BACK</button>
+        <h2>CHOOSE YOUR CLASS</h2>
+        <div class="spacer"></div>
+    </div>
+    <div class="class-grid" id="class-grid"></div>
+</div>
+
+<!-- MAP SELECT -->
+<div id="map-select" class="screen">
+    <div class="screen-header">
+        <button class="btn-back" onclick="showScreen('class-select')">← BACK</button>
+        <h2>SELECT MAP</h2>
+        <div class="menu-gold-small">
+            <span class="gold-icon">💰</span>
+            <span id="map-gold-amount">0</span>
+        </div>
+    </div>
+    <div class="map-grid" id="map-grid"></div>
+</div>
+
+<!-- SHOP -->
+<div id="shop-screen" class="screen">
+    <div class="screen-header">
+        <button class="btn-back" onclick="showScreen('main-menu')">← BACK</button>
+        <h2>GRIMGAR SHOP</h2>
+        <div class="menu-gold-small">💰 <span id="shop-gold-amount">0</span></div>
+    </div>
+    <div class="shop-tabs">
+        <button class="tab-btn active" onclick="switchShopTab('permanent')">PERMANENT</button>
+        <button class="tab-btn" onclick="switchShopTab('consumables')">CONSUMABLES</button>
+    </div>
+    <div class="shop-grid" id="shop-grid"></div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="top-hud">
+        <div class="hud-left">
+            <div class="hp-container">
+                <span class="hud-label">HP</span>
+                <div class="bar-bg">
+                    <div class="hp-bar" id="hp-bar"></div>
+                </div>
+                <span class="hud-value" id="hp-text">100/100</span>
+            </div>
+            <div class="shield-container" id="shield-container" style="display:none">
+                <span class="hud-label">🛡</span>
+                <div class="bar-bg">
+                    <div class="shield-bar" id="shield-bar"></div>
+                </div>
+                <span class="hud-value" id="shield-text">0</span>
+            </div>
+            <div class="xp-container">
+                <span class="hud-label">LV.<span id="player-level">1</span></span>
+                <div class="bar-bg">
+                    <div class="xp-bar" id="xp-bar"></div>
+                </div>
+            </div>
+        </div>
+        <div class="hud-center">
+            <div id="wave-display">Wave 1</div>
+            <div id="timer-display">0:00</div>
+        </div>
+        <div class="hud-right">
+            <div id="gold-display">💰 0</div>
+            <button class="pause-btn" onclick="togglePause()">⏸</button>
+        </div>
+    </div>
+
+    <!-- Items display -->
+    <div id="items-display"></div>
+
+    <!-- Minimap -->
+    <canvas id="minimap" width="150" height="110"></canvas>
+
+    <!-- Wave announcement -->
+    <div id="wave-announcement" class="hidden"></div>
+
+    <!-- Level up panel -->
+    <div id="levelup-panel" class="hidden">
+        <div class="levelup-title">⬆ LEVEL UP!</div>
+        <div class="levelup-subtitle">Choose an upgrade</div>
+        <div class="levelup-choices" id="levelup-choices"></div>
+        <div class="levelup-actions">
+            <button class="btn-reroll" id="reroll-btn" onclick="rerollChoices()" style="display:none">🎲 Reroll</button>
+            <button class="btn-skip" id="skip-btn" onclick="skipLevelUp()" style="display:none">⏭ Skip</button>
+        </div>
+    </div>
+
+    <!-- Pause menu -->
+    <div id="pause-menu" class="hidden">
+        <div class="pause-content">
+            <h2>PAUSED</h2>
+            <button class="btn-primary" onclick="togglePause()">▶ RESUME</button>
+            <button class="btn-secondary" onclick="restartGame()">↺ RESTART</button>
+            <button class="btn-danger" onclick="quitToMenu()">✕ QUIT</button>
+        </div>
+    </div>
+
+    <!-- Game over -->
+    <div id="gameover-panel" class="hidden">
+        <div class="endgame-content">
+            <div class="end-title defeat">☠ DEFEATED</div>
+            <div class="end-quote" id="gameover-quote"></div>
+            <div class="end-stats" id="gameover-stats"></div>
+            <div class="end-gold" id="gameover-gold"></div>
+            <button class="btn-primary" onclick="restartGame()">↺ TRY AGAIN</button>
+            <button class="btn-secondary" onclick="quitToMenu()">⬅ MENU</button>
+        </div>
+    </div>
+
+    <!-- Victory -->
+    <div id="victory-panel" class="hidden">
+        <div class="endgame-content">
+            <div class="end-title victory">✦ VICTORY ✦</div>
+            <div class="end-quote" id="victory-quote"></div>
+            <div class="end-stats" id="victory-stats"></div>
+            <div class="end-gold" id="victory-gold"></div>
+            <button class="btn-primary" onclick="quitToMenu()">⬅ MENU</button>
+            <button class="btn-secondary" onclick="restartGame()">↺ PLAY AGAIN</button>
+        </div>
+    </div>
+</div>
+
+<!-- DATA FILES -->
+<script src="data/classes.js"></script>
+<script src="data/weapons.js"></script>
+<script src="data/items.js"></script>
+<script src="data/enemies.js"></script>
+<script src="data/maps.js"></script>
+<script src="data/shop.js"></script>
+<!-- SYSTEMS -->
+<script src="save-system.js"></script>
+<script src="game-engine.js"></script>
+</body>
+</html>
